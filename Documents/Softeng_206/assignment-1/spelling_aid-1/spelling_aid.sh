@@ -73,82 +73,60 @@ function test(){
 		test1Word $1
 	else
 		echo "There are no words to use for that test"
+		enterSelection
 	fi
 	
 }
 function test1Word(){
 	echo -n "Spell word 1 of 1: " 
-	ifStatementInTest $1 1
+	ifStatementInTest $(sed -n "1p" "$1")
 	clear
 	greeting
 }
 function test2Word(){
-	a=$( randomNumberInRange $(cat $1 | wc -l) )
-	b=$a
-
-	while [ $a -eq $b ]
-	do 
-		b=$( randomNumberInRange $(cat $1 | wc -l) )
-	done
-
 	wordNumber=1
-	for i in $a $b;
+	for i in `shuf -n 3 $1`;
 		do
 			echo -n "Spell word $wordNumber of 2: " 
-			sayWord $(sed -n "${i}p" "$1")
-			ifStatementInTest $1 $i
+		ifStatementInTest "$i"
 		
-			wordNumber=$((wordNumber+1))
-		done
+		wordNumber=$((wordNumber+1));
+	done
 	clear
 	greeting
 }
 function test3OrMoreWord(){
-	a=$( randomNumberInRange $(cat $1 | wc -l) )
-	b=$a
-
-	while [ $a -eq $b ]
-	do 
-		b=$( randomNumberInRange $(cat $1 | wc -l) )
-	done
-	c=$b
-	while [ $a -eq $c -o $b -eq $c ]
-	do
-		c=$( randomNumberInRange $(cat $1 | wc -l) )
-	done
 	wordNumber=1
-	for i in $a $b $c;
+	for i in `shuf -n 3 $1`;
 		do
 			echo -n "Spell word $wordNumber of 3: " 
-			ifStatementInTest $1 $i
+		ifStatementInTest "$i"
 		
-		wordNumber=$((wordNumber+1))
+		wordNumber=$((wordNumber+1));
 	done
 	clear
 	greeting
 }
-#says the word at the given line number, and compares it to the typed word by the user as required by the test
-#result of comparison determines how test proceeds
+
 function ifStatementInTest(){
-	#$1 argument is the file
-	#$2 argument is line number of word
-	sayWord $(sed -n "${2}p" "$1")
+	#$1 is the word
+	sayWord $1
 	declare -l currentWord
 	read currentWord
-	if [ "$currentWord" == "$(sed -n "${2}p" "$1")" ];
+	if [ "$currentWord" == "$1" ];
 	then
-		masteredList $(sed -n "${2}p" "$1")
+		masteredList $1
 			
 	else
 		echo -n '   Incorrect, try once more: ' 
-		incorrectTryOnceMore $(sed -n "${2}p" "$1")
-		sayWord $(sed -n "${2}p" "$1")
+		incorrectTryOnceMore $1
+		sayWord $1
 		read currentWord
-		if [ "$currentWord" == "$(sed -n "${2}p" "$1")" ];
+		if [ "$currentWord" == "$1" ];
 		then
-			faultedList $(sed -n "${2}p" "$1")
+			faultedList $1
 		else
-			failedList $(sed -n "${2}p" "$1")
+			failedList $1
 		fi
 	fi
 }
@@ -213,7 +191,7 @@ function viewStatistics(){
 			echo -en "\t`grep -c "$line" "$FAULTED_LIST"`"
 			echo -en "\t`grep -c "$line" "$FAILED_LIST"`\n"
 		fi
-	done <$WORD_LIST
+done <$WORD_LIST
 	greeting
 }
 function clearStatistics(){
@@ -233,7 +211,7 @@ function quit(){
 	echo $HEADING_BREAK
 	echo "Thank You!"
 	echo ' 0  0 '
-	echo '      '
+	echo '   >  '
 	echo '   o  '
 	echo $HEADING_BREAK
 	sleep 0.5s
