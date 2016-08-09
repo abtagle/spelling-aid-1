@@ -61,45 +61,28 @@ function randomNumberInRange(){
 	echo $RANDOM_NUMBER
 }
 #calls required test function as per number of possible words to test
-function test(){
+function testMenu(){
 	if [ $(grep -c ^ $1) -ge 3 ];
 	then
-		test3OrMoreWord $1
+		test $1 3
 	elif [ $(grep -c ^ $1) -eq 2 ];
 	then
-		test2Word $1
+		test $1 2
 	elif [ $(grep -c ^ $1) -eq 1 ];
 	then
-		test1Word $1
+		test $1 1
 	else
 		echo "There are no words to use for that test"
 		enterSelection
 	fi
 	
 }
-function test1Word(){
-	echo -n "Spell word 1 of 1: " 
-	ifStatementInTest $(sed -n "1p" "$1")
-	clear
-	greeting
-}
-function test2Word(){
+
+function test(){
 	wordNumber=1
-	for i in `shuf -n 3 $1`;
+	for i in `shuf -n $2 $1`;
 		do
-			echo -n "Spell word $wordNumber of 2: " 
-		ifStatementInTest "$i"
-		
-		wordNumber=$((wordNumber+1));
-	done
-	clear
-	greeting
-}
-function test3OrMoreWord(){
-	wordNumber=1
-	for i in `shuf -n 3 $1`;
-		do
-			echo -n "Spell word $wordNumber of 3: " 
+			echo -n "Spell word $wordNumber of $2: " 
 		ifStatementInTest "$i"
 		
 		wordNumber=$((wordNumber+1));
@@ -152,7 +135,7 @@ function newQuiz(){
 	echo $HEADING_BREAK
 	echo "New Spelling Quiz"
 	echo $HEADING_BREAK
-	test $WORD_LIST
+	testMenu $WORD_LIST
 }
 function newReview(){
 	
@@ -161,7 +144,7 @@ function newReview(){
 	echo $HEADING_BREAK
 	sort $LAST_FAIL_LIST | uniq >$REVIEW_LIST
 	sed -i '/^$/d' $REVIEW_LIST
-	test $REVIEW_LIST
+	testMenu $REVIEW_LIST
 	greeting
 
 }
